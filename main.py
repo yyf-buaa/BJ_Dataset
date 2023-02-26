@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-
+from tqdm import  tqdm
 import pandas as pd
 
 def geometry2json(geometry):
@@ -20,7 +20,7 @@ geo_file = pd.DataFrame(columns=['geo_id','type','coordinates','function','traff
 region_bj = pd.read_csv('Data/region_bj.csv',delimiter=',')
 region_num = len(region_bj)
 index = 0
-for i in range(len(region_bj)):
+for i in tqdm(range(len(region_bj)),desc="geo_region"):
     type = 'Polygon'
     coordinates = geometry2json(region_bj.loc[i,'geometry'])
     function = region_bj.loc[i,'FUNCTION']
@@ -30,7 +30,7 @@ for i in range(len(region_bj)):
 #road
 road_bj = pd.read_csv('Data/road_bj.csv',delimiter=',')
 road_num = len(road_bj)
-for i in range(len(road_bj)):
+for i in tqdm(range(len(road_bj)),desc="geo_road"):
     type = 'LineString'
     coordinates = road_bj.loc[i,'coordinates']
     function = -1
@@ -40,7 +40,7 @@ for i in range(len(road_bj)):
 #poi
 poi_bj = pd.read_csv('Data/POI_bj.csv',delimiter=',')
 poi_num = len(poi_bj)
-for i in range(len(poi_bj)):
+for i in tqdm(range(len(poi_bj)),desc="geo_poi"):
     type = 'Point'
     x = poi_bj.loc[i,'X']
     y = poi_bj.loc[i,'Y']
@@ -57,7 +57,7 @@ geo_file.to_csv('result/bj_dataset.geo',index = False)
 rel_file = pd.DataFrame(columns=['rel_id','type','origin_id','destination_id','rel_type'])
 index = 0
 road2region = pd.read_json('Data/road2region_bj.json', typ='series')
-for i in range(len(road2region)):
+for i in tqdm(range(len(road2region)),desc="rel_road2region"):
     type = 'geo'
     origin_id = i+region_num
     destination_id = road2region[i]
@@ -66,7 +66,7 @@ for i in range(len(road2region)):
     index+=1
 
 region2road = pd.read_json('Data/region2road_bj.json', typ='series')
-for i in range(len(region2road)):
+for i in tqdm(range(len(region2road)),desc="rel_region2road"):
     type = 'geo'
     origin_id = i
     destination_id = region2road[i]+region_num
@@ -75,7 +75,7 @@ for i in range(len(region2road)):
     index+=1
 
 poi2region = pd.read_json('Data/poi2region_bj.json', typ='series')
-for i in range(len(poi2region)):
+for i in tqdm(range(len(poi2region)),desc="rel_poi2region"):
     type = 'geo'
     origin_id = i+region_num+road_num
     destination_id = poi2region[i]
@@ -84,7 +84,7 @@ for i in range(len(poi2region)):
     index+=1
 
 region2poi = pd.read_json('Data/region2poi_bj.json', typ='series')
-for i in range(len(region2poi)):
+for i in tqdm(range(len(region2poi)),desc="rel_region2poi"):
     type = 'geo'
     origin_id = i
     destination_id = region2poi[i]+region_num+road_num
@@ -93,7 +93,7 @@ for i in range(len(region2poi)):
     index+=1
 
 poi2road = pd.read_json('Data/poi2road_bj.json', typ='series')
-for i in range(len(poi2road)):
+for i in tqdm(range(len(poi2road)),desc="rel_poi2road"):
     type = 'geo'
     origin_id = i+region_num+road_num
     destination_id = poi2road[i]+region_num
@@ -102,7 +102,7 @@ for i in range(len(poi2road)):
     index+=1
 
 road2poi = pd.read_json('Data/road2poi_bj.json', typ='series')
-for i in range(len(road2poi)):
+for i in tqdm(range(len(road2poi)),desc="rel_road2poi"):
     type = 'geo'
     origin_id = i+region_num
     destination_id = road2poi[i]+region_num+road_num
@@ -115,7 +115,7 @@ rel_file.to_csv('result/bj_dataset.rel',index = False)
 dyna_file = pd.DataFrame(columns=['dyna_id','type','time','entity_id','traj_id','geo_id'])
 traj = pd.read_csv('Data/traj_bj.csv',delimiter=';')
 index = 0
-for i in range(len(traj)):
+for i in tqdm(range(len(traj)),desc="dyna"):
     path = traj.loc[i,'path']
     path = path[1:len(path)-1].split(',')
     path = [int(s) for s in path]
