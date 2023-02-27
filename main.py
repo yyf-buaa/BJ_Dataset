@@ -114,9 +114,10 @@ for i in tqdm(road2poi.index.asi8,desc="rel_road2poi"):
 rel_file.to_csv('result/bj_dataset.rel',index = False)
 
 #dyna
-dyna_file = pd.DataFrame(columns=['dyna_id','type','time','entity_id','traj_id','geo_id'])
+dyna_file = pd.DataFrame(columns=['dyna_id','type','time','entity_id','traj_id','geo_id','total_traj_id'])
 traj = pd.read_csv('Data/traj_bj.csv',delimiter=';')
 index = 0
+total_traj_id = 0
 for i in tqdm(range(len(traj)),desc="dyna"):
     path = traj.loc[i,'path']
     path = path[1:len(path)-1].split(',')
@@ -131,14 +132,15 @@ for i in tqdm(range(len(traj)),desc="dyna"):
     for j in range(len(path)):
         time = t_list[j]
         geo_id = path[j]
-        dyna_file.loc[index] = [index,type,time,entity_id,traj_id,geo_id]
+        dyna_file.loc[index] = [index,type,time,entity_id,traj_id,geo_id,total_traj_id]
         index+=1
+    total_traj_id += 1
 dyna_file.to_csv('result/bj_dataset.dyna',index=False)
 
 #config
 geo_obj = {"including_types":["Point", "LineString", "Polygon"],"Point":{"function":"other","traffic_type":"enum"},"LineString":{"function":"other","traffic_type":"enum"},"Polygon":{"function":"num","traffic_type":"enum"}}
 rel_obj = {"including_types":["geo"],"geo":{"rel_type":"enum"}}
-dyna_obj = {"including_types":["trajectory"],"trajectory":{"geo_id":"geo_id"}}
+dyna_obj = {"including_types":["trajectory"],"trajectory":{"geo_id":"geo_id","total_traj_id":"num"}}
 info_obj = {"data_files":"bj_dataset","geo_file":"bj_dataset","rel_file":"bj_dataset","calculate_weight_adj":True}
 config_obj = {"geo":geo_obj,"rel":rel_obj,"dyna":dyna_obj,"info":info_obj}
 with open('result/config.json','w') as f:
