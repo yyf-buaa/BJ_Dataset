@@ -12,8 +12,6 @@ def geometry2json(geometry):
     json = json.replace('*',' ')
     return json
 
-
-
 geo_file = pd.DataFrame(columns=['geo_id','type','coordinates','function','traffic_type'])
 #.geo
 #region
@@ -57,7 +55,7 @@ geo_file.to_csv('result/bj_dataset.geo',index = False)
 rel_file = pd.DataFrame(columns=['rel_id','type','origin_id','destination_id','rel_type'])
 index = 0
 road2region = pd.read_json('Data/road2region_bj.json', typ='series')
-for i in tqdm(range(len(road2region)),desc="rel_road2region"):
+for i in tqdm(road2region.index.asi8,desc="rel_road2region"):
     type = 'geo'
     origin_id = i+region_num
     destination_id = road2region[i]
@@ -66,16 +64,17 @@ for i in tqdm(range(len(road2region)),desc="rel_road2region"):
     index+=1
 
 region2road = pd.read_json('Data/region2road_bj.json', typ='series')
-for i in tqdm(range(len(region2road)),desc="rel_region2road"):
+for i in tqdm(region2road.index.asi8,desc="rel_region2road"):
     type = 'geo'
     origin_id = i
-    destination_id = region2road[i]+region_num
+    destination_id_list = [des+region_num for des in list(region2road[i])]
     rel_type = 'region2road'
-    rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
-    index+=1
+    for destination_id in destination_id_list:
+        rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
+        index+=1
 
 poi2region = pd.read_json('Data/poi2region_bj.json', typ='series')
-for i in tqdm(range(len(poi2region)),desc="rel_poi2region"):
+for i in tqdm(poi2region.index.asi8,desc="rel_poi2region"):
     type = 'geo'
     origin_id = i+region_num+road_num
     destination_id = poi2region[i]
@@ -84,31 +83,34 @@ for i in tqdm(range(len(poi2region)),desc="rel_poi2region"):
     index+=1
 
 region2poi = pd.read_json('Data/region2poi_bj.json', typ='series')
-for i in tqdm(range(len(region2poi)),desc="rel_region2poi"):
+for i in tqdm(region2poi.index.asi8,desc="rel_region2poi"):
     type = 'geo'
     origin_id = i
-    destination_id = region2poi[i]+region_num+road_num
+    destination_id_list = [des+region_num+road_num for des in list(region2poi[i])]
     rel_type = 'region2poi'
-    rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
-    index+=1
+    for destination_id in destination_id_list:
+        rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
+        index+=1
 
 poi2road = pd.read_json('Data/poi2road_bj.json', typ='series')
-for i in tqdm(range(len(poi2road)),desc="rel_poi2road"):
+for i in tqdm(poi2road.index.asi8,desc="rel_poi2road"):
     type = 'geo'
     origin_id = i+region_num+road_num
-    destination_id = poi2road[i]+region_num
+    destination_id_list = [des+region_num for des in list(poi2road[i])]
     rel_type = 'poi2road'
-    rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
-    index+=1
+    for destination_id in destination_id_list:
+        rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
+        index+=1
 
 road2poi = pd.read_json('Data/road2poi_bj.json', typ='series')
-for i in tqdm(range(len(road2poi)),desc="rel_road2poi"):
+for i in tqdm(road2poi.index.asi8,desc="rel_road2poi"):
     type = 'geo'
     origin_id = i+region_num
-    destination_id = road2poi[i]+region_num+road_num
+    destination_id_list = [des+region_num+road_num for des in list(road2poi[i])]
     rel_type = 'road2poi'
-    rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
-    index+=1
+    for destination_id in destination_id_list:
+        rel_file.loc[index] = [index,type,origin_id,destination_id,rel_type]
+        index+=1
 rel_file.to_csv('result/bj_dataset.rel',index = False)
 
 #dyna
